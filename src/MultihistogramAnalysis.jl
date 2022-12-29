@@ -19,7 +19,7 @@ export getrange,
 
 include("MultihistogramDataStructures.jl")
 
-function free_energy_iteration(u, data::MA.MultihistogramData)
+function free_energy_iteration(u, data::MultihistogramData)
     J = length(data.parameter_values)
     A = -1/2 * (maximum(u) + minimum(u))
     Evec = data.marginal_energy_histograms
@@ -40,7 +40,7 @@ function free_energy_iteration(u, data::MA.MultihistogramData)
     return Fk
 end
 
-function calculate_free_energies!(data::MA.MultihistogramData; rtol = 1e-10)
+function calculate_free_energies!(data::MultihistogramData; rtol = 1e-10)
     P = ProgressThresh(rtol^2, "Minimizing: ")
     F = Fnew = zeros(length(data.parameter_values))
     while true

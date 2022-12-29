@@ -1,4 +1,4 @@
-function interpolate_free_energy(parameter_value, data::MA.MultihistogramData; isbeta = false)
+function interpolate_free_energy(parameter_value, data::MultihistogramData; isbeta = false)
     total = 0.
     if !isbeta
         β = 1/parameter_value
@@ -22,7 +22,7 @@ function interpolate_free_energy(parameter_value, data::MA.MultihistogramData; i
     return log(total)
 end
 
-function interpolate_energy(parameter_value, data::MA.MultihistogramData; isbeta = false)
+function interpolate_energy(parameter_value, data::MultihistogramData; isbeta = false)
     total = 0.
     if !isbeta
         β = 1/parameter_value
@@ -49,7 +49,7 @@ function interpolate_energy(parameter_value, data::MA.MultihistogramData; isbeta
     return exp(log(total) - F) + Omin
 end
 
-function interpolate_energy_second_moment(parameter_value, data::MA.MultihistogramData; isbeta = false, returnlinear = false)
+function interpolate_energy_second_moment(parameter_value, data::MultihistogramData; isbeta = false, returnlinear = false)
     total_linear = 0.
     total_square = 0.
     
@@ -89,7 +89,7 @@ function interpolate_energy_second_moment(parameter_value, data::MA.Multihistogr
     end
 end
 
-function interpolate_observable(parameter_value, observable, data::MA.MultihistogramData; isbeta = false)
+function interpolate_observable(parameter_value, observable, data::MultihistogramData; isbeta = false)
     total = 0.
     if !isbeta
         β = 1/parameter_value
@@ -120,8 +120,8 @@ function interpolate_observable(parameter_value, observable, data::MA.Multihisto
     return exp(log(total) - F) + Omin
 end
 
-function interpolate_observable_second_moment(parameter_value, observable, data::MA.MultihistogramData;
-        isbeta = false, returnfirst = false)
+function interpolate_observable_second_moment(parameter_value, observable, data::MultihistogramData;
+        isbeta = false, returnlinear = false)
     total_linear = 0.
     total_square = 0.
     
@@ -157,7 +157,7 @@ function interpolate_observable_second_moment(parameter_value, observable, data:
     Oli = exp(log(total_linear) - F) + Omin
     Osq = exp(log(total_square) - F) + 2 * Oli * Omin - Omin^2
     
-    if returnfirst
+    if returnlinear
         return Oli, Osq
     else
         return Osq
