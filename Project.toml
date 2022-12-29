@@ -1,0 +1,13 @@
+name = "MultihistogramAnalysis"
+uuid = "6d21e23f-9602-4305-bb34-9bafcd338197"
+authors = ["Cocoa <cocoathepenguin@protonmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
