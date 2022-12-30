@@ -108,7 +108,7 @@ function interpolate_observable(parameter_value, observable, data::Multihistogra
     Omin = minimum(minimum.(Oranges))
     
     for i in 1:J
-        for state in MHData.tuple_iterators[i]
+        for state in data.tuple_iterators[i]
             if state.f == 0
                 continue
             end
@@ -138,7 +138,7 @@ function interpolate_observable_abs(parameter_value, observable, data::Multihist
 
     
     for i in 1:J
-        for state in MHData.tuple_iterators[i]
+        for state in data.tuple_iterators[i]
             if state.f == 0
                 continue
             end
@@ -172,7 +172,7 @@ function interpolate_observable_second_moment(parameter_value, observable, data:
     Omin = minimum(minimum.(Oranges))
     
     for i in 1:J
-        for state in MHData.tuple_iterators[i]
+        for state in data.tuple_iterators[i]
             if state.f == 0
                 continue
             end
@@ -215,7 +215,7 @@ function interpolate_observable_second_moment_abs(parameter_value, observable, d
     A    = -1/2 * (maximum(u) + minimum(u))
 
     for i in 1:J
-        for state in MHData.tuple_iterators[i]
+        for state in data.tuple_iterators[i]
             if state.f == 0
                 continue
             end
