@@ -15,6 +15,7 @@ export getrange,
     interpolate_energy,
     interpolate_energy_second_moment,
     interpolate_observable,
+    interpolate_observable_abs,
     interpolate_observable_second_moment,
     interpolate_observable_second_moment_abs
 
