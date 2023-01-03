@@ -130,7 +130,6 @@ function interpolate_observable_abs(parameter_value, observable, data::Multihist
     end
     
     Tvec = data.parameter_values
-    Evec = data.marginal_energy_histograms
     F    = interpolate_free_energy(parameter_value, data)
     u    = data.free_energies
     J    = length(Tvec)
@@ -148,7 +147,7 @@ function interpolate_observable_abs(parameter_value, observable, data::Multihist
         end
     end
     
-    return exp(log(total) - F) + Omin
+    return exp(log(total) - F)
 end
 
 function interpolate_observable_second_moment(parameter_value, observable, data::MultihistogramData;
