@@ -39,7 +39,7 @@ function free_energy_iteration_logsum(u, data::MultihistogramData)
     Fk = zeros(J)
     for k in 1:J
         total_k = 0.
-        terms = []
+        terms = Float64[]
         for i in 1:J
             for (E, f) in Evec[i]
                 if f == 0
