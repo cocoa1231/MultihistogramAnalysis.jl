@@ -1,3 +1,6 @@
+using Dictionaries
+using DataStructures
+
 mutable struct MultihistogramData
     observables::Vector
     parameter_values::Vector
@@ -20,7 +23,8 @@ end
 function marginalize(df, col)
     vals = collect(getrange(df, col))
     freqs = [marginalvalue(df, col, val) for val in vals]
-    return sort(Dict(vals .=> freqs))
+    histogram = filter(x -> last(x) != 0, Dict(vals .=> freqs)) |> SortedDict
+    return Dictionary(histogram)
 end
 
 function MultihistogramData(nparams::Integer, simulated_parameters::Vector, simulated_histograms::Vector)
@@ -29,18 +33,19 @@ function MultihistogramData(nparams::Integer, simulated_parameters::Vector, simu
     for (idx, histogram) in enumerate(simulated_histograms)
         @assert length(names(histogram)) == nparams+1 "Histogram $idx does not have correct number of parameters"
     end
-    
+
     observables = Symbol.(names(first(simulated_histograms)))[1:end-1]
     
     if !(:U in observables)
         @error "Energy not found in observables. Please ensure energy is labelled with :U"
         throw(KeyError(:U))
     end
-    
+
     observable_ranges = [
         Dict([C => getrange(histogram, C) for C in observables]...)
         for histogram in simulated_histograms]
-    
+
+    @info "Generating marginal histograms and tuple iterators"    
     marginal_energy_histograms = [marginalize(histogram, :U) for histogram in simulated_histograms]
     tuple_iterators = Tables.namedtupleiterator.(simulated_histograms)
     return MultihistogramData(observables, simulated_parameters, simulated_histograms, observable_ranges, marginal_energy_histograms, [], tuple_iterators)

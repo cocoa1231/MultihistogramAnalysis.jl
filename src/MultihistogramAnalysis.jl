@@ -13,6 +13,7 @@ export getrange,
     free_energy_iteration_logsum,
     calculate_free_energies!,
     interpolate_free_energy,
+    interpolate_free_energy_logsum,
     interpolate_energy_logsum,
     interpolate_energy,
     interpolate_energy_logsum,
@@ -41,8 +42,9 @@ function free_energy_iteration_logsum(u, data::MultihistogramData)
         total_k = 0.
         terms = Float64[]
         for i in 1:J
-            for (E, f) in Evec[i]
+            for (E, f) in pairs(Evec[i])
                 if f == 0
+                    @warn "Redundancy in histogram" i, E
                     continue
                 end
                 num = f
@@ -66,7 +68,7 @@ function free_energy_iteration(u, data::MultihistogramData)
     for k in 1:J
         total_k = 0.
         for i in 1:J
-            for (E, f) in Evec[i]
+            for (E, f) in pairs(Evec[i])
                 num = f
                 den = sum([exp(-A-u[j]+(1/Tvec[k] - 1/Tvec[j])E) for j in 1:J])
                 total_k += num/den

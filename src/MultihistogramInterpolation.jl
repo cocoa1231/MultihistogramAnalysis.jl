@@ -21,10 +21,7 @@ function interpolate_free_energy(parameter_value, data::MultihistogramData; isbe
     A    = -1/2 * (maximum(u) + minimum(u))
     
     for i in 1:J
-        for (E, f) in Evec[i]
-            if f == 0
-                continue
-            end
+        for (E, f) in pairs(Evec[i])
             num = f
             den = sum([exp(-A-u[j]+(β - 1/Tvec[j])*E) for j in 1:J])
             total += num/den
@@ -48,10 +45,7 @@ function interpolate_free_energy_logsum(parameter_value, data::MultihistogramDat
     
     logterms = Float64[]
     for i in 1:J
-        for (E, f) in Evec[i]
-            if f == 0
-                continue
-            end
+        for (E, f) in pairs(Evec[i])
             num = f
             den = [-A-u[j]+(β - 1/Tvec[j])*E for j in 1:J]
             push!(logterms, log(num) - logsum(den))
@@ -82,10 +76,7 @@ function interpolate_energy(parameter_value, data::MultihistogramData; isbeta = 
     Omin = minimum(minimum.(Oranges))
     
     for i in 1:J
-        for (E, f) in Evec[i]
-            if f == 0
-                continue
-            end
+        for (E, f) in pairs(Evec[i])
 
             num = f * (E - Omin)
             den = sum([exp(-A-u[j]+(β - 1/Tvec[j])*E) for j in 1:J])
@@ -113,10 +104,7 @@ function interpolate_energy_logsum(parameter_value, data::MultihistogramData; is
     
     logterms = Float64[]
     for i in 1:J
-        for (E, f) in Evec[i]
-            if f == 0
-                continue
-            end
+        for (E, f) in pairs(Evec[i])
 
             num = f * (E - Omin)
             den = [-A-u[j]+(β - 1/Tvec[j])*E for j in 1:J]
@@ -147,10 +135,7 @@ function interpolate_energy_second_moment(parameter_value, data::MultihistogramD
     Omin = minimum(minimum.(Oranges))
     
     for i in 1:J
-        for (E, f) in Evec[i]
-            if f == 0
-                continue
-            end
+        for (E, f) in pairs(Evec[i])
 
             num_li = f * (E - Omin)
             num_sq = num_li * (E - Omin)
@@ -191,10 +176,7 @@ function interpolate_energy_second_moment_logsum(parameter_value, data::Multihis
     logterms_linear = Float64[]
     logterms_square = Float64[]
     for i in 1:J
-        for (E, f) in Evec[i]
-            if f == 0
-                continue
-            end
+        for (E, f) in pairs(Evec[i])
             num_li = f * (E - Omin)
             num_sq = num_li * (E - Omin)
             
@@ -326,7 +308,7 @@ function interpolate_observable_abs_logsum(parameter_value, observable, data::Mu
             end
             num = state.f * abs(getproperty(state, observable))
             den = [ -A-u[j]+(β - 1/Tvec[j]) * state.U for j in 1:J]
-            push!(logterms, log(num) - logterms(den))
+            push!(logterms, log(num) - logsum(den))
         end
     end
     
