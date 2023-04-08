@@ -36,24 +36,24 @@ function free_energy_iteration_logsum(u, data::MultihistogramData)
     A = -1/2 * (maximum(u) + minimum(u))
     Evec = data.marginal_energy_histograms
     Tvec = data.parameter_values
-    
+
+    nterms = sum([length(H) for H in Evec])
     Fk = zeros(J)
     for k in 1:J
-        total_k = 0.
-        terms = Float64[]
+        terms = zeros(nterms)
+        offset = 0
         for i in 1:J
-            for (E, f) in pairs(Evec[i])
-                if f == 0
-                    @warn "Redundancy in histogram" i, E
-                    continue
-                end
-                num = f
-                den = [-A-u[j]+(1/Tvec[k] - 1/Tvec[j])*E for j in 1:J]
-                push!(terms, log(num) - logsum(den))
+            iterthing = collect(pairs(Evec[i]))
+            Threads.@threads for idx in 1:length(iterthing)
+                E = first(iterthing[idx])
+                f = last(iterthing[idx])
+                terms[offset + idx] = log(f) - logsum([
+                    -A-u[j]+(1/Tvec[k] - 1/Tvec[j])*E for j in 1:J
+                ])
             end
-            total_k = logsum(terms)
+            offset += length(iterthing)
         end
-        Fk[k] += total_k
+        Fk[k] += logsum(terms)
     end
     return Fk
 end

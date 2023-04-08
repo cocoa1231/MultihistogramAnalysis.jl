@@ -4,6 +4,14 @@ function logsum(logterms)
     return lm + log1p(sum(exp.(logterms_removed .- lm)))
 end
 
+function logsum(logterms::Vector{ComplexF64})
+    lr = real.(logterms)
+    maxidx = findfirst(==(maximum(lr)), lr)
+    maxterm = logterms[maxidx]
+    logterms_filtered = filter(x -> x != maxterm, logterms)
+    return maxterm + log1p(sum(exp.(logterms_filtered .- maxterm)))
+end
+
 ### Free Energy
 
 function interpolate_free_energy(parameter_value, data::MultihistogramData; isbeta = false)
