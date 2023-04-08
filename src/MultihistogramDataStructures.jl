@@ -13,7 +13,12 @@ end
 
 function getrange(df, col)
     vec = getproperty(df, col)
-    return minimum(vec):minimum(filter(t -> t != 0, abs.(diff(vec)))):maximum(vec)
+    if allequal(vec)
+        dv = abs(vec[1])
+    else
+        dv = minimum(filter(t -> t != 0, abs.(diff(vec))))
+    end
+    return minimum(vec):dv:maximum(vec)
 end
 
 function marginalvalue(df, col, val)
