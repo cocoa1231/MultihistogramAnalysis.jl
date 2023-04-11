@@ -50,14 +50,22 @@ function interpolate_free_energy_logsum(parameter_value, data::MultihistogramDat
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
+    nterms = sum([length(H) for H in Evec])
     
-    logterms = Float64[]
+    logterms = zeros(nterms)
+    offset = 0
     for i in 1:J
-        for (E, f) in pairs(Evec[i])
-            num = f
-            den = [-A-u[j]+(β - 1/Tvec[j])*E for j in 1:J]
-            push!(logterms, log(num) - logsum(den))
+        iterthing = collect(pairs(Evec[i]))
+
+        Threads.@threads for idx in 1:length(iterthing)
+            E = first(iterthing[idx])
+            f = last(iterthing[idx])
+            logterms[offset + idx] = log(f) - logsum([
+                -A-u[j]+(β - 1/Tvec[j])*E for j in 1:J
+            ])
         end
+
+        offset += length(iterthing)
     end
 
     return logsum(logterms)
@@ -76,7 +84,7 @@ function interpolate_energy(parameter_value, data::MultihistogramData; isbeta = 
     
     Tvec = data.parameter_values
     Evec = data.marginal_energy_histograms
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -103,7 +111,7 @@ function interpolate_energy_logsum(parameter_value, data::MultihistogramData; is
     
     Tvec = data.parameter_values
     Evec = data.marginal_energy_histograms
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -135,7 +143,7 @@ function interpolate_energy_second_moment(parameter_value, data::MultihistogramD
     
     Tvec = data.parameter_values
     Evec = data.marginal_energy_histograms
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -174,7 +182,7 @@ function interpolate_energy_second_moment_logsum(parameter_value, data::Multihis
     
     Tvec = data.parameter_values
     Evec = data.marginal_energy_histograms
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -215,7 +223,7 @@ function interpolate_observable(parameter_value, observable, data::Multihistogra
     end
     
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -244,7 +252,7 @@ function interpolate_observable_logsum(parameter_value, observable, data::Multih
     end
     
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -275,7 +283,7 @@ function interpolate_observable_abs(parameter_value, observable, data::Multihist
     end
     
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -303,7 +311,7 @@ function interpolate_observable_abs_logsum(parameter_value, observable, data::Mu
     end
     
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -335,7 +343,7 @@ function interpolate_observable_second_moment(parameter_value, observable, data:
     end
     
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -377,7 +385,7 @@ function interpolate_observable_second_moment_logsum(parameter_value, observable
     end
     
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -424,7 +432,7 @@ function interpolate_observable_second_moment_abs(parameter_value, observable, d
     end
 
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
@@ -465,7 +473,7 @@ function interpolate_observable_second_moment_abs_logsum(parameter_value, observ
     end
 
     Tvec = data.parameter_values
-    F    = interpolate_free_energy(parameter_value, data)
+    F    = interpolate_free_energy(parameter_value, data, isbeta = isbeta)
     u    = data.free_energies
     J    = length(Tvec)
     A    = -1/2 * (maximum(u) + minimum(u))
