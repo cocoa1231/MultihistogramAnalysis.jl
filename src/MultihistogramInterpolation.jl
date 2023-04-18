@@ -198,7 +198,7 @@ function interpolate_energy_second_moment_logsum(parameter_value::T, data::Multi
     offset = 0
     for i in 1:J
         iterthing = collect(pairs(Evec[i]))
-        for idx in 1:length(iterthing)
+        Threads.@threads for idx in 1:length(iterthing)
             E = first(iterthing[idx])
             f = last(iterthing[idx])
             num_li = f * (E - Omin)
@@ -331,7 +331,7 @@ function interpolate_observable_abs_logsum(parameter_value::T, observable, data:
     offset = 0
     for i in 1:J
         t = data.tuple_iterators[i]
-        for idx in 1:length(t)
+        Threads.@threads for idx in 1:length(t)
             state = t[idx]
             num = state.f * abs(getproperty(state, observable))
             den = [ -A-u[j]+(β - 1/Tvec[j]) * state.U for j in 1:J]
@@ -409,7 +409,7 @@ function interpolate_observable_second_moment_logsum(parameter_value::T, observa
     offset = 0
     for i in 1:J
         t = data.tuple_iterators[i]
-        for idx in 1:length(t)
+        Threads.@threads for idx in 1:length(t)
             state = t[idx]
             num_li = state.f * (getproperty(state, observable) - Omin)
             num_sq = num_li * (getproperty(state, observable) - Omin)
@@ -496,7 +496,7 @@ function interpolate_observable_second_moment_abs_logsum(parameter_value::T, obs
     offset = 0
     for i in 1:J
         t = data.tuple_iterators[i]
-        for idx in 1:length(t)
+        Threads.@threads for idx in 1:length(t)
             state = t[idx]
             num_li = state.f * abs(getproperty(state, observable))
             num_sq = num_li * abs(getproperty(state, observable))
