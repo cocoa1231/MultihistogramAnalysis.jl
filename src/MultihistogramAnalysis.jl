@@ -39,24 +39,27 @@ function free_energy_iteration_logsum(u, data::MultihistogramData)
 
     nterms = sum([length(H) for H in Evec])
     Fk = zeros(J)
+    denom_arrays = [zeros(J) for _ in 1:Threads.nthreads()]
+    terms = zeros(nterms)
+    
     for k in 1:J
-        terms = zeros(nterms)
         offset = 0
         for i in 1:J
-            iterthing = collect(pairs(Evec[i]))
+            iterthing = data.marginal_energy_histiters[i]
             Threads.@threads for idx in 1:length(iterthing)
-                E = first(iterthing[idx])
-                f = last(iterthing[idx])
-                terms[offset + idx] = log(f) - logsum([
-                    -A-u[j]+(1/Tvec[k] - 1/Tvec[j])*E for j in 1:J
-                ])
+                for j in 1:J
+                    denom_arrays[Threads.threadid()][j] = -A-u[j]+(1/Tvec[k] - 1/Tvec[j])*first(iterthing[idx])
+                end
+                terms[offset + idx] = log(last(iterthing[idx])) - logsum!(denom_arrays[Threads.threadid()])
             end
             offset += length(iterthing)
         end
-        Fk[k] += logsum(terms)
+        Fk[k] += logsum!(terms)
     end
+    
     return Fk
 end
+
 
 function free_energy_iteration(u, data::MultihistogramData)
     J = length(data.parameter_values)

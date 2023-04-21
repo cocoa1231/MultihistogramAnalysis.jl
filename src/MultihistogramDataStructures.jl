@@ -7,6 +7,7 @@ mutable struct MultihistogramData
     simulated_histograms::Vector
     observable_ranges::Vector
     marginal_energy_histograms::Vector
+    marginal_energy_histiters::Vector
     nEbins::Int64
     nbins::Int64
     free_energies::Vector
@@ -54,8 +55,10 @@ function MultihistogramData(nparams::Integer, simulated_parameters::Vector, simu
 
     @info "Generating marginal histograms and tuple iterators"    
     marginal_energy_histograms = [marginalize(histogram, :U; atol = atol) for histogram in simulated_histograms]
+    marginal_energy_histiters = [collect(pairs(H)) for H in marginal_energy_histograms]
     tuple_iterators = collect.(Tables.namedtupleiterator.(simulated_histograms))
     nEbins = sum([length(H) for H in marginal_energy_histograms])
     nbins = sum([length(H) for H in tuple_iterators])
-    return MultihistogramData(observables, simulated_parameters, simulated_histograms, observable_ranges, marginal_energy_histograms, nEbins, nbins, [], tuple_iterators)
+    return MultihistogramData(observables, simulated_parameters, simulated_histograms, observable_ranges,
+        marginal_energy_histograms, marginal_energy_histiters, nEbins, nbins, [], tuple_iterators)
 end

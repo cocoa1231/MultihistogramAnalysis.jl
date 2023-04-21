@@ -1,7 +1,15 @@
+function logsum!(logterms)
+    lm = maximum(logterms)
+    logterms .-= lm
+    for i in eachindex(logterms)
+        logterms[i] = exp(logterms[i])
+    end
+    return lm + log(sum(logterms))
+end
+
 function logsum(logterms)
     lm = maximum(logterms)
-    logterms_removed = filter(!=(lm), logterms)
-    return lm + log1p(sum(exp.(logterms_removed .- lm)))
+    return lm + log(sum(exp.(logterms .- lm)))
 end
 
 function logsum(logterms::Vector{ComplexF64})
@@ -55,7 +63,7 @@ function interpolate_free_energy_logsum(parameter_value::T, data::Multihistogram
     logterms = zeros(T, nterms)
     offset = 0
     for i in 1:J
-        iterthing = collect(pairs(Evec[i]))
+        iterthing = data.marginal_energy_histiters[i]
 
         Threads.@threads for idx in 1:length(iterthing)
             E = first(iterthing[idx])
