@@ -1,17 +1,17 @@
 using Dictionaries
 using DataStructures
 
-mutable struct MultihistogramData
-    observables::Vector
-    parameter_values::Vector
-    simulated_histograms::Vector
-    observable_ranges::Vector
-    marginal_energy_histograms::Vector
-    marginal_energy_histiters::Vector
+mutable struct MultihistogramData{pType, orType, ehType, ehiType, ntiType}
+    observables::Vector{Symbol}
+    parameter_values::Vector{pType}
+    simulated_histograms::Vector{DataFrame}
+    observable_ranges::Vector{orType}
+    marginal_energy_histograms::Vector{ehType}
+    marginal_energy_histiters::Vector{ehiType}
     nEbins::Int64
     nbins::Int64
-    free_energies::Vector
-    tuple_iterators::Vector
+    free_energies::Vector{pType}
+    tuple_iterators::Vector{ntiType}
 end
 
 function getrange(df, col)
@@ -35,7 +35,7 @@ function marginalize(df, col; atol = 1e-3)
     return Dictionary(histogram)
 end
 
-function MultihistogramData(nparams::Integer, simulated_parameters::Vector, simulated_histograms::Vector; atol = 1e-3)
+function MultihistogramData(nparams::Int64, simulated_parameters::Vector{pType}, simulated_histograms::Vector{hType}; atol = 1e-3) where {pType, hType}
     @assert allequal(names.(simulated_histograms))
     
     for (idx, histogram) in enumerate(simulated_histograms)
@@ -60,5 +60,5 @@ function MultihistogramData(nparams::Integer, simulated_parameters::Vector, simu
     nEbins = sum([length(H) for H in marginal_energy_histograms])
     nbins = sum([length(H) for H in tuple_iterators])
     return MultihistogramData(observables, simulated_parameters, simulated_histograms, observable_ranges,
-        marginal_energy_histograms, marginal_energy_histiters, nEbins, nbins, [], tuple_iterators)
+        marginal_energy_histograms, marginal_energy_histiters, nEbins, nbins, pType[], tuple_iterators)
 end

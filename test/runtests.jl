@@ -17,7 +17,7 @@ using ProgressMeter
 
     # Create MHData object
     MHData = MultihistogramData(2, temperatures, histograms)
-    calculate_free_energies!(MHData)
+    calculate_free_energies!(MHData; logsum = true)
 
     N = 684
     Trange = minimum(temperatures):0.01:maximum(temperatures)
