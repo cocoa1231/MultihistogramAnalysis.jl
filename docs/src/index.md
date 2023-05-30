@@ -66,8 +66,9 @@ exponentiating the logarithms, this trick lets us do that. If ``l_0`` is the
 largest logarithm, then one can calculate the sum as follows.
 
 ```math
-\log(\sum_{i=0} \exp(l_i)) = \log(e^{l_0} \left[1 + \sum_{i=1} e^{l_i -
-l_0}\right]) = l_0 + \log(1 +  \sum_{i=1} e^{l_i - l_0})
+\log\left(\sum_{i=0} \exp(l_i)\right) = \log\left(e^{l_0} \left[1 + \sum_{i=1}
+e^{l_i - l_0}\right]\right) = l_0 + \log\left(1 +  \sum_{i=1} e^{l_i -
+l_0}\right)
 ```
 
 This has the advantage of avoiding numerical overflow and calculate observables
