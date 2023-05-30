@@ -1,6 +1,35 @@
 using Dictionaries
 using DataStructures
 
+@doc raw"""
+Primary data structure of the library. Holds all the information needed to run
+all of the functions provided. The constructor provided for this will precompute
+all the required datasets to ensure fastest interpolation. The fields are
+
+- `observables::Vector{Symbol}`: A vector of symbols comprising of all the
+  observables of the system. For instance, for an Ising system, this will be the
+  internal energy and magnetization. It is mandatory that the column for internal
+  energy be labelled with `:U`. Magnetization can be labelled whatever, so for
+  instance a valid observables vector is `Symbol[:U, :M]`.
+- `parameter_values::Vector{pType}`: List of parameters at which the system was
+  simulated. For instnace, this can be the temperatures at which MCMC simulations
+  were done.
+- `simulated_histograms::Vector{DataFrame}`: Flattened vector of all simulated
+  histograms. The DataFrame must have a column for internal energy labelled `:U`
+  and the frequency of occurance labelled `:f`. Other columns can be named
+  whatever.
+- `observable_ranges::Vector{orType}`: Vector of the ranges spanned by the
+  observables.
+- `marginal_energy_histograms::Vector{ehType}`: Dictionary of marginal energy
+  histograms, mapping energy to frequency of occurance.
+- `marginal_energy_histiters::Vector{ehiType}`: Array of collected pairs of
+  `marginal_energy_histograms`. Collected they take less memory.
+- `nEbins::Int64`: Number of energy bins sampled in total.
+- `nbins::Int64`: Number of histogram bins in total.
+- `free_energies::Vector{pType}`: Current best guess of free energies.
+- `tuple_iterators::{ntiType}`: Named tuple iterators from the histograms for
+  fast iterations.
+"""
 mutable struct MultihistogramData{pType, orType, ehType, ehiType, ntiType}
     observables::Vector{Symbol}
     parameter_values::Vector{pType}

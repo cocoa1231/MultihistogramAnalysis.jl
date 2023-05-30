@@ -6,6 +6,7 @@ using ProgressMeter
 
 export MultihistogramData
 
+# Export a billion things because I CAN'T WRITE CODE
 export getrange,
     marginalvalue,
     marginalize,
@@ -31,6 +32,13 @@ export getrange,
 include("MultihistogramDataStructures.jl")
 include("MultihistogramInterpolation.jl")
 
+@doc raw"""
+One iteration of the multihistogram (wham) free energy equations with the logsum
+trick. Inputs are
+
+- `u`: One dimensional array-like type. Guess for the free energies.
+- `data::MultihistogramData`: Dataset for Multihistogram interpolation.
+"""
 function free_energy_iteration_logsum(u, data::MultihistogramData)
     J = length(data.parameter_values)
     A = -1/2 * (maximum(u) + minimum(u))
@@ -60,7 +68,12 @@ function free_energy_iteration_logsum(u, data::MultihistogramData)
     return Fk
 end
 
+@doc raw"""
+One iteration of the multihistogram (wham) free energy equations. Inputs are
 
+- `u`: One dimensional array-like type. Guess for the free energies.
+- `data::MultihistogramData`: Dataset for Multihistogram interpolation.
+"""
 function free_energy_iteration(u, data::MultihistogramData)
     J = length(data.parameter_values)
     A = -1/2 * (maximum(u) + minimum(u))
@@ -82,6 +95,22 @@ function free_energy_iteration(u, data::MultihistogramData)
     return Fk
 end
 
+@doc raw"""
+Iterate the free energy multihistogram equation until the error is below a
+threshold. Error is calculated as.
+
+```math
+\Delta^2 = \sum_{i} \left(\frac{F^(m)_i - F^(m-1)_i}{F^(m-1)_i}\right)^2
+```
+
+Inputs are
+
+- `data::MultihistogramData`: Multihistogram dataset.
+- `rtol` (default `1e-10`): Tolerance until the error is minimized. Value of
+  ``\Delta``.
+- `logsum` (default `false`): Use the logsum method. Recommended for systems
+  with energies larger than 300.
+"""
 function calculate_free_energies!(data::MultihistogramData; rtol = 1e-10, logsum = false)
     P = ProgressThresh(rtol^2, "Minimizing: ")
     F = Fnew = zeros(length(data.parameter_values))
